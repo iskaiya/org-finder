@@ -21,25 +21,27 @@
   <select id="categoryFilter" onchange="renderResults()">
     <option value="">All Categories</option>
     <option value="Academic">Academic</option>
-    <option value="Sports">Sports</option>
-    <option value="Arts">Arts</option>
+    <option value="Sports">Arts</option>
+    <option value="Arts">Sports</option>
   </select>
 
   <select id="campusFilter" onchange="renderResults()">
-    <option value="">All Campuses</option>
-    <option value="Main">Main</option>
-    <option value="North">North</option>
-    <option value="South">South</option>
+    <option value="">University-Wide</option>
+    <option value="Main">CCIS</option>
+    <option value="North">COC</option>
+    <option value="South">CE</option>
   </select>
 
   <ul id="resultsList"></ul>
 
   <script>
     const organizations = [
-      { name: "Tech Society", description: "Tech enthusiasts", date: "2019-06-15", category: "Academic", campus: "Main" },
-      { name: "Green Earth", description: "Environmental org", date: "2021-03-10", category: "Arts", campus: "North" },
-      { name: "Music Club", description: "For music lovers", date: "2020-08-05", category: "Arts", campus: "Main" },
-      { name: "Varsity League", description: "Competitive sports team", date: "2018-11-20", category: "Sports", campus: "South" }
+      { name: "Cisco NetConnect PUP", description: "Technology and cybersecurity", date: "2024", category: "Academic", campus: "University-Wide" },
+      { name: "PUP Radical Judo Club", description: "Judo varsity team", date: "2013", category: "Sports", campus: "University-Wide" },
+      { name: "PUP Aggregates", description: "For civil engineering students", date: "2010", category: "Academic", campus: "CE" },
+      { name: "PUP Association of Students in Computer Intelligence Integration (ASCII)", description: "official academic organization of the Department of Computer Science", date: "2011", category: "Academic", campus: "CCIS" }
+      { name: "Teatro Komunikado", description: "The Premier Theater and Production Organization of PUP-College of Communication.", date: "2010", category: "Arts", campus: "COC" },
+
     ];
 
     function renderResults() {
