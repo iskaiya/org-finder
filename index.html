@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Org Finder</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    select, input { margin-right: 10px; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Student Organization Finder</h2>
+
+  <!-- Filters -->
+  <input type="text" id="searchInput" placeholder="Search organizations..." oninput="renderResults()" />
+
+  <select id="sortOption" onchange="renderResults()">
+    <option value="name">Sort by Name (A–Z)</option>
+    <option value="date">Sort by Date Established (Newest First)</option>
+  </select>
+
+  <select id="categoryFilter" onchange="renderResults()">
+    <option value="">All Categories</option>
+    <option value="Academic">Academic</option>
+    <option value="Sports">Sports</option>
+    <option value="Arts">Arts</option>
+  </select>
+
+  <select id="campusFilter" onchange="renderResults()">
+    <option value="">All Campuses</option>
+    <option value="">Unversity-Wide</option>
+    <option value="Main">CCIS</option>
+    <option value="North">CE</option>
+    <option value="South">COC</option>
+  </select>
+
+  <ul id="resultsList"></ul>
+
+  <script>
+    const organizations = [
+      { name: "Cisco NetConnect PUP", description: "Technology and cybersecurity", date: "2024", category: "Academic", campus: "University-Wide" },
+      { name: "PUP Radical Judo Club", description: "Judo varsity team", date: "2013", category: "Sports", campus: "University-Wide" },
+      { name: "PUP Aggregates", description: "For civil engineering students", date: "2010", category: "Academic", campus: "CE" },
+      { name: "PUP Association of Students in Computer Intelligence Integration (ASCII)", description: "official academic organization of the Department of Computer Science", date: "2011", category: "Academic", campus: "CCIS" }
+      { name: "Teatro Komunikado", description: "The Premier Theater and Production Organization of PUP-College of Communication.", date: "2010", category: "Arts", campus: "COC" },
+    ];
+
+    function renderResults() {
+  const keyword = document.getElementById("searchInput").value.toLowerCase();
+  const sortBy = document.getElementById("sortOption").value;
+  const category = document.getElementById("categoryFilter").value;
+  const campus = document.getElementById("campusFilter").value;
+
+  let filtered = organizations.filter(org =>
+    (org.name.toLowerCase().includes(keyword) ||
+     org.description.toLowerCase().includes(keyword)) &&
+    (category === "" || org.category === category) &&
+    (campus === "" || org.campus === campus)
+  );
+
+  if (sortBy === "name") {
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+  } else if (sortBy === "date") {
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }
+
+  const resultsList = document.getElementById("resultsList");
+  resultsList.innerHTML = "";
+
+  if (filtered.length === 0) {
+    resultsList.innerHTML = "<li>No matching organizations found.</li>";
+    return;
+  }
+
+  filtered.forEach(org => {
+    const li = document.createElement("li");
+    li.textContent = `${org.name} - ${org.description} (Category: ${org.category}, Campus: ${org.campus}, Established: ${org.date})`;
+    resultsList.appendChild(li);
+  });
+}
+
+
+    // Run once on page load
+    renderResults();
+  </script>
+</body>
+</html>
