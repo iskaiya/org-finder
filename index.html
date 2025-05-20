@@ -10,9 +10,7 @@
 <body>
   <h2>Student Organization Finder</h2>
 
-  <!-- Filters -->
-  <input type="text" id="searchInput" placeholder="Search organizations..." oninput="renderResults()" />
-
+  <input type="text" id="searchInput" placeholder="Search organization name (partial match supported)" oninput="renderResults()" />
   <select id="sortOption" onchange="renderResults()">
     <option value="name">Sort by Name (A–Z)</option>
     <option value="date">Sort by Date Established (Newest First)</option>
@@ -40,46 +38,88 @@
       { name: "Cisco NetConnect PUP", description: "Technology and cybersecurity", date: "2024", category: "Academic", campus: "University-Wide" },
       { name: "PUP Radical Judo Club", description: "Judo varsity team", date: "2013", category: "Sports", campus: "University-Wide" },
       { name: "PUP Aggregates", description: "For civil engineering students", date: "2010", category: "Academic", campus: "CE" },
-      { name: "PUP Association of Students in Computer Intelligence Integration (ASCII)", description: "official academic organization of the Department of Computer Science", date: "2011", category: "Academic", campus: "CCIS" },
-      { name: "Teatro Komunikado", description: "The Premier Theater and Production Organization of PUP-College of Communication.", date: "2010", category: "Arts", campus: "COC" }
+      { name: "PUP Association of Students in Computer Intelligence Integration (ASCII)", description: "Official academic org of Dept. of Computer Science", date: "2011", category: "Academic", campus: "CCIS" },
+      { name: "Teatro Komunikado", description: "Theater and production org of PUP-COC", date: "2010", category: "Arts", campus: "COC" }
     ];
 
+    function quickSort(arr, keyFn) {
+      if (arr.length <= 1) return arr;
+      const pivot = arr[0];
+      const left = arr.slice(1).filter(x => keyFn(x) < keyFn(pivot));
+      const right = arr.slice(1).filter(x => keyFn(x) >= keyFn(pivot));
+      return [...quickSort(left, keyFn), pivot, ...quickSort(right, keyFn)];
+    }
+
+    // Modified binary search for partial matching
+    function binaryPartialSearch(arr, keyword) {
+      const matches = [];
+      let low = 0, high = arr.length - 1;
+      keyword = keyword.toLowerCase();
+      let mid;
+
+      // Find an initial match
+      while (low <= high) {
+        mid = Math.floor((low + high) / 2);
+        const name = arr[mid].name.toLowerCase();
+        if (name.includes(keyword)) break;
+        if (name < keyword) low = mid + 1;
+        else high = mid - 1;
+      }
+
+      // No match found
+      if (low > high) return [];
+
+      // Expand around mid to collect all partial matches
+      let left = mid;
+      while (left >= 0 && arr[left].name.toLowerCase().includes(keyword)) {
+        left--;
+      }
+      let right = mid;
+      while (right < arr.length && arr[right].name.toLowerCase().includes(keyword)) {
+        right++;
+      }
+
+      return arr.slice(left + 1, right);
+    }
+
     function renderResults() {
-  const keyword = document.getElementById("searchInput").value.toLowerCase();
-  const sortBy = document.getElementById("sortOption").value;
-  const category = document.getElementById("categoryFilter").value;
-  const campus = document.getElementById("campusFilter").value;
+      const keyword = document.getElementById("searchInput").value.trim().toLowerCase();
+      const sortBy = document.getElementById("sortOption").value;
+      const category = document.getElementById("categoryFilter").value;
+      const campus = document.getElementById("campusFilter").value;
 
-  let filtered = organizations.filter(org =>
-    (org.name.toLowerCase().includes(keyword) ||
-     org.description.toLowerCase().includes(keyword)) &&
-    (category === "" || org.category === category) &&
-    (campus === "" || org.campus === campus)
-  );
+      let filtered = organizations.filter(org =>
+        (category === "" || org.category === category) &&
+        (campus === "" || org.campus === campus)
+      );
 
-  if (sortBy === "name") {
-    filtered.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (sortBy === "date") {
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }
+      // Sort before binary search
+      if (sortBy === "name") {
+        filtered = quickSort(filtered, org => org.name.toLowerCase());
+      } else if (sortBy === "date") {
+        filtered = quickSort(filtered, org => -new Date(org.date));
+      }
 
-  const resultsList = document.getElementById("resultsList");
-  resultsList.innerHTML = "";
+      // Apply partial binary search only if keyword is provided
+      if (keyword !== "") {
+        filtered = binaryPartialSearch(filtered, keyword);
+      }
 
-  if (filtered.length === 0) {
-    resultsList.innerHTML = "<li>No matching organizations found.</li>";
-    return;
-  }
+      const resultsList = document.getElementById("resultsList");
+      resultsList.innerHTML = "";
 
-  filtered.forEach(org => {
-    const li = document.createElement("li");
-    li.textContent = `${org.name} - ${org.description} (Category: ${org.category}, Campus: ${org.campus}, Established: ${org.date})`;
-    resultsList.appendChild(li);
-  });
-}
+      if (filtered.length === 0) {
+        resultsList.innerHTML = "<li>No matching organizations found.</li>";
+        return;
+      }
 
+      filtered.forEach(org => {
+        const li = document.createElement("li");
+        li.textContent = `${org.name} - ${org.description} (Category: ${org.category}, Campus: ${org.campus}, Established: ${org.date})`;
+        resultsList.appendChild(li);
+      });
+    }
 
-    // Run once on page load
     renderResults();
   </script>
 </body>
